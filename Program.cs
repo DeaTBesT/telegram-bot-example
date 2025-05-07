@@ -6,6 +6,8 @@ namespace FantasyKingdom
     {
         public static async Task Main(string[] args)
         {
+            var botController = new BotController(BotConfig.BotToken);
+            await Task.Run(() => botController.StartBot());
         }
     }
 }
