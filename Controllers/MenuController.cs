@@ -18,9 +18,9 @@ public class MenuController(ITelegramBotClient bot)
             replyMarkup: InlineKeyboards.MenuKeyboard);
     }
 
-    public async Task IndexEdit(Update update, UserModel user)
+    public async Task IndexEdit(CallbackQuery query, UserModel user)
     {
-        await bot.EditMessageText(update.CallbackQuery.From.Id, update.CallbackQuery.Message.MessageId,
+        await bot.EditMessageText(query.From.Id, query.Message.MessageId,
             $"Босс, вы в главном меню.\n" +
             $"Что будем делать?\n\n" +
             $"👤Ваше прозвище : {user.UserName}\n\n" +

@@ -33,7 +33,7 @@ public class QueryHandler(
             {
                 case QueryCommand.acceptUsername:
                     await registrationController.AcceptNickname(query, user);
-                    await menuController.IndexEdit(update, user);
+                    await menuController.IndexEdit(query, user);
                     break;
                 default:
                     Logger.LogWarning($"Unknown command: {cmdStr}");
