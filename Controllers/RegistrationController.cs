@@ -11,8 +11,11 @@ public class RegistrationController(ITelegramBotClient bot)
 {
     public async Task Index(Message msg)
     {
-        await bot.SendMessage(msg.Chat, "✏Напиши свое имя");
-        DatabaseService.TryCreateUser(msg.From.Id);
+        await Task.Run(() =>
+        {
+            bot.SendMessage(msg.Chat, "✏Напиши свое имя");
+            DatabaseService.TryCreateUser(msg.From.Id);
+        });
     }
 
     public async Task SetNickName(Message msg, UserModel user)

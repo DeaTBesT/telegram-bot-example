@@ -8,7 +8,7 @@ using Telegram.Bot.Types.Enums;
 
 namespace FantasyKingdom.Handlers;
 
-public class MessageHandler(ITelegramBotClient bot, RegistrationController registrationController) : IHandler
+public class MessageHandler(ITelegramBotClient bot, RegistrationController registrationController,  MenuController menuController) : IHandler
 {
     private const string CommandsPrefix = "/";
 
@@ -21,6 +21,8 @@ public class MessageHandler(ITelegramBotClient bot, RegistrationController regis
             return;
         }
 
+        var user = DatabaseService.GetUserById(msg.From.Id);
+        
         if (Utils.TryNormalizeCommand(CommandsPrefix, msg.Text, out var cmdStr))
         {
             var command = Utils.ParseMessageCommands(cmdStr);
@@ -31,6 +33,7 @@ public class MessageHandler(ITelegramBotClient bot, RegistrationController regis
                     await registrationController.Index(msg);
                     break;
                 case MessageCommand.menu:
+                    await menuController.IndexNew(msg, user);
                     break;
                 default:
                     Logger.LogWarning($"Unknown command: {cmdStr}");
@@ -39,8 +42,6 @@ public class MessageHandler(ITelegramBotClient bot, RegistrationController regis
         }
         else
         {
-            var user = DatabaseService.GetUserById(msg.From.Id);
-
             if (string.IsNullOrEmpty(user.UserName))
             {
                 Logger.LogWarning($"Unknown command: {cmdStr}"); 

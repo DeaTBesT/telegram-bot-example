@@ -11,18 +11,19 @@ namespace FantasyKingdom.Bot;
 public class BotController(string token)
 {
     private RegistrationController _registrationController;
-    
+    private MenuController _menuController;
+
     private IHandler _consoleHandler;
     private IHandler _messageHandler;
     private IHandler _queryHandler;
-    
+
     public async Task StartBot()
     {
         var cts = new CancellationTokenSource();
         var bot = new TelegramBotClient(token, cancellationToken: cts.Token);
 
         InitializeServices(bot);
-        
+
         var me = await bot.GetMe();
         bot.OnMessage += OnMessage;
         bot.OnUpdate += OnUpdate;
@@ -36,17 +37,18 @@ public class BotController(string token)
     private void InitializeServices(ITelegramBotClient bot)
     {
         DatabaseService.Run();
-        
+
         _registrationController = new RegistrationController(bot);
-        
+        _menuController = new MenuController(bot);
+
         _consoleHandler = new ConsoleHandler();
-        _messageHandler = new MessageHandler(bot, _registrationController);
-        _queryHandler = new QueryHandler(bot, _registrationController);
+        _messageHandler = new MessageHandler(bot, _registrationController, _menuController);
+        _queryHandler = new QueryHandler(bot, _registrationController, _menuController);
     }
-    
-    private async Task OnMessage(Message msg, UpdateType type) => 
+
+    private async Task OnMessage(Message msg, UpdateType type) =>
         await _messageHandler.Handle(msg, type);
 
-    private async Task OnUpdate(Update update) => 
+    private async Task OnUpdate(Update update) =>
         await _queryHandler.Handle(update);
 }
