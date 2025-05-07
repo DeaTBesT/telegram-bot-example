@@ -1,0 +1,5 @@
+Telegram.Bot
+Newtonsoft.Json
+Microsoft.Data.Sqlite.Core
+SQLitePCLRaw.bundle_e_sqlite3
+Dapper
