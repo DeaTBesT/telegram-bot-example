@@ -10,14 +10,15 @@ namespace FantasyKingdom.Handlers;
 public class QueryHandler(
     ITelegramBotClient bot,
     RegistrationController registrationController,
-    MenuController menuController) : IHandler
+    MenuController menuController,
+    TavernController tavernController) : IHandler
 {
     private const string CommandsPrefix = "/";
 
     public async Task Handle(params object[] args)
     {
         var update = args[0] as Update;
-        
+
         if (args[0] is not Update { CallbackQuery: { } query }) // non-null CallbackQuery
         {
             return;
@@ -32,11 +33,20 @@ public class QueryHandler(
             switch (command)
             {
                 case QueryCommand.acceptUsername:
+                {
                     await registrationController.AcceptNickname(query, user);
                     await menuController.IndexEdit(query, user);
+                }
+                    break;
+                case QueryCommand.tavern:
+                {
+                    await tavernController.IndexEdit(query, user);
+                }
                     break;
                 default:
+                {
                     Logger.LogWarning($"Unknown command: {cmdStr}");
+                }
                     break;
             }
         }

@@ -12,6 +12,7 @@ public class BotController(string token)
 {
     private RegistrationController _registrationController;
     private MenuController _menuController;
+    private TavernController _tavernController;
 
     private IHandler _consoleHandler;
     private IHandler _messageHandler;
@@ -40,10 +41,11 @@ public class BotController(string token)
 
         _registrationController = new RegistrationController(bot);
         _menuController = new MenuController(bot);
+        _tavernController = new TavernController(bot);
 
         _consoleHandler = new ConsoleHandler();
         _messageHandler = new MessageHandler(bot, _registrationController, _menuController);
-        _queryHandler = new QueryHandler(bot, _registrationController, _menuController);
+        _queryHandler = new QueryHandler(bot, _registrationController, _menuController, _tavernController);
     }
 
     private async Task OnMessage(Message msg, UpdateType type) =>

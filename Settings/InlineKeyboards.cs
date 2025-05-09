@@ -4,11 +4,51 @@ namespace FantasyKingdom.Settings;
 
 public static class InlineKeyboards
 {
-    public static InlineKeyboardMarkup RegistrationKeyboard = new([
+    public static readonly InlineKeyboardMarkup RegistrationKeyboard = new([
         [InlineKeyboardButton.WithCallbackData("✔", callbackData: "/acceptUsername")]
-    ]); 
-    
-    public static InlineKeyboardMarkup MenuKeyboard = new([
-        [InlineKeyboardButton.WithCallbackData("✔", callbackData: "/menu")]
     ]);
+
+    public static readonly InlineKeyboardMarkup MenuKeyboard = new([
+        [
+            InlineKeyboardButton.WithCallbackData("\ud83c\udf7aТаверна", callbackData: "/tavern"),
+            InlineKeyboardButton.WithCallbackData("\ud83d\udc64Герои", callbackData: "/hero")
+        ],
+        [
+            InlineKeyboardButton.WithCallbackData("\ud83c\udff0Замок", callbackData: "/kingdom"),
+            InlineKeyboardButton.WithCallbackData("🌎Война за территорию", callbackData: "/online")
+        ],
+        [InlineKeyboardButton.WithCallbackData("💎Магазин", callbackData: "/shop")],
+    ]);
+
+    public static readonly InlineKeyboardMarkup TavernMenu = new([
+        [
+            InlineKeyboardButton.WithCallbackData("🧑Персонал", callbackData: "/hiredRecruits"),
+            InlineKeyboardButton.WithCallbackData("👥Рекруты", callbackData: "/showDailyRecruits")
+        ],
+        [InlineKeyboardButton.WithCallbackData("🔙Назад", callbackData: "/shelterMenu")]
+    ]);
+
+    public static readonly InlineKeyboardMarkup HeroMenu = new([
+        [InlineKeyboardButton.WithCallbackData("❌Уволить", callbackData: "/kickRecruit")],
+        [InlineKeyboardButton.WithCallbackData("🔙Назад", callbackData: "/hiredRecruits")]
+    ]);
+
+    public static readonly InlineKeyboardMarkup KickHero = new([
+        [InlineKeyboardButton.WithCallbackData("🔴Да", callbackData: "/acceptKickRecruit")],
+        [InlineKeyboardButton.WithCallbackData("🔙Назад", callbackData: "/hiredRecruits")]
+    ]);
+
+    // public static readonly InlineKeyboardMarkup GetHireRecruitMarkup(bool isHired)
+    // {
+    //     string _text = isHired ? "[Нанятый]" : "➕Нанять";
+    //     string _callbackData = isHired ? "/notificate Вы_уже_наняли_этого_человека" : "/hireRecruit";
+    //
+    //     InlineKeyboardMarkup hireRecruitMenu = new InlineKeyboardMarkup(new[]
+    //     {
+    //         new[] { InlineKeyboardButton.WithCallbackData(_text, callbackData: _callbackData), },
+    //         new[] { InlineKeyboardButton.WithCallbackData("🔙Назад", callbackData: "/recruitsMenu") }
+    //     });
+    //
+    //     return hireRecruitMenu;
+    // }
 }

@@ -3,5 +3,6 @@
 public enum QueryCommand
 {
     undefined,
-    acceptUsername
+    acceptUsername,
+    tavern
 }
