@@ -17,6 +17,8 @@ public static class DatabaseService
 
     public static async void Run()
     {
+        Logger.Log($"Подключение к базе данных по пути: {Path.GetFullPath(dbFile)}");
+        
         if (!File.Exists(dbFile))
         {
             Logger.LogError("Database not found");
@@ -24,8 +26,39 @@ public static class DatabaseService
 
         _connection = new SqliteConnection($"Data Source={dbFile};");
         raw.SetProvider(new SQLite3Provider_e_sqlite3());
+        
+        Logger.Log("Подключение к базе данных успешно установлено");
     }
 
+    public static List<UserModel> GetAllUsers()
+    {
+        // Получаем всех пользователей из базы данных
+        var dbUsers = _connection.Query<DataBaseUserModel>("SELECT Id, UserName, Data FROM Users").ToList();
+
+        var userModels = new List<UserModel>();
+
+        foreach (var dbUser in dbUsers)
+        {
+            try
+            {
+                var userData = JsonConvert.DeserializeObject<UserData>(dbUser.Data);
+
+                userModels.Add(new UserModel
+                {
+                    Id = dbUser.Id,
+                    UserName = dbUser.UserName,
+                    Data = userData
+                });
+            }
+            catch (JsonException ex)
+            {
+                Logger.LogWarning($"Ошибка десериализации пользовательских данных для ID пользователя {dbUser.Id}: {ex.Message}");
+            }
+        }
+
+        return userModels;
+    }
+    
     public static UserModel GetUserById(long id)
     {
         var output = _connection.Query<DataBaseUserModel>($"SELECT UserName, Data FROM Users WHERE Id='{id}'").FirstOrDefault();
