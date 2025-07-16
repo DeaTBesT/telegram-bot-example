@@ -7,9 +7,13 @@ namespace FantasyKingdom.Handlers;
 public class ConsoleHandler : IHandler
 {
     private static TimeController _timeController;
+    private static NotificationController _notificationController;
 
-    public ConsoleHandler(TimeController timeController) =>
+    public ConsoleHandler(TimeController timeController, NotificationController notificationController)
+    {
         _timeController = timeController;
+        _notificationController = notificationController;
+    }
 
     private class CommandInfo(Action<string[]> action, string description)
     {
@@ -23,6 +27,8 @@ public class ConsoleHandler : IHandler
         { "echo", new CommandInfo(ExecuteEcho, "Повторить введённый текст. Использование: echo <текст>") },
         { "nextday", new CommandInfo(ExecuteNextDay, "Начинает следующий день") },
         { "cleartimesaves", new CommandInfo(ExecuteClearTimeSaves, "Очистка сохранений времени") },
+        { "notificateall", new CommandInfo(ExecuteNotificateAll, "Рассылает всем пользователям сообщение. Использование: notificateall <текст>") },
+        { "notificateuser", new CommandInfo(ExecuteNotificateUser, "Отсылает сообщение пользователю. Использование: notificateuser <id пользователя> <текст>") },
         { "exit", new CommandInfo(ExecuteExit, "Выйти из программы") }
     };
 
@@ -93,6 +99,40 @@ public class ConsoleHandler : IHandler
     {
         _timeController.ClearSavedTime();
         Console.WriteLine("Файл сохранения времени удален");
+    }
+
+    private static void ExecuteNotificateAll(string[] args)
+    {
+        if (args.Length == 0)
+        {
+            Console.WriteLine("Ошибка: Не указан текст для вывода");
+            Console.WriteLine("Использование: notificateall <текст>");
+            return;
+        }
+
+        _notificationController.NotificateUsers(string.Join(" ", args));
+    }
+
+    private static void ExecuteNotificateUser(string[] args)
+    {
+        if (args.Length < 2)
+        {
+            Console.WriteLine("Ошибка: Не указан ID пользователя или текст сообщения");
+            Console.WriteLine("Использование: notificateuser <id пользователя> <текст сообщения>");
+            return;
+        }
+
+        // Первый аргумент - ID пользователя
+        if (!long.TryParse(args[0], out var userId))
+        {
+            Console.WriteLine("Ошибка: Неверный формат ID пользователя");
+            return;
+        }
+
+        // Все остальные аргументы - текст сообщения
+        var message = string.Join(" ", args.Skip(1));
+
+        _notificationController.NotificateUser(userId, message);
     }
 
     private static void ExecuteExit(string[] _) =>

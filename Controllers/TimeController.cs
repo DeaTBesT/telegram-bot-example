@@ -7,115 +7,161 @@ namespace FantasyKingdom.Controllers;
 
 public class TimeController : IDisposable
 {
-    // Константы
-    private const int SecondsPerGameHour = 3600;
-    private const int SecondsPerGameDay = 86400; // 24 игровых часа
-    
     // События
-    public Action<int> OnHourPassed { get; set; } // Вызывается при каждом новом часе (параметр - номер часа)
-    public Action<int> OnDayPassed { get; set; }  // Вызывается при каждом новом дне (параметр - номер дня)
-    
-    // Свойства
-    public double CurrentGameTimeSeconds { get; private set; }
-    public double TimeScale { get; set; } = 60.0; // 1 реальная секунда = 1 игровая минута
-    
-    public int CurrentHour => (int)(CurrentGameTimeSeconds % SecondsPerGameDay) / SecondsPerGameHour;
-    public int CurrentDay => (int)(CurrentGameTimeSeconds / SecondsPerGameDay);
-    public double SecondsUntilNextDay => SecondsPerGameDay - (CurrentGameTimeSeconds % SecondsPerGameDay);
-    
-    private DateTime _lastUpdateTime;
+    public static Action OnTick { get; set; } // Вызывается при наступлении нового игрового дня (текущий час)
+    public static Action<int> OnMissedTicks { get; set; } // Вызывается при запуске, если пропущены дни (количество пропущенных дней)
+
+    // Настройки
+    public bool IsPaused { get; set; }
+
+    private DateTime _lastRealTime;
+    private DateTime _lastGameDayTime; // Время последнего игрового дня
     private readonly string _saveFilePath;
-    private readonly System.Timers.Timer _updateTimer;
-    
+    private readonly System.Timers.Timer _checkTimer;
+
     public TimeController()
     {
         _saveFilePath = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
             "FantasyKingdom",
-            "game_time.json");
-        
+            "real_time_tracker.json");
+
         Logger.Log($"Сохранения времени по пути: {_saveFilePath}");
-        
+
         Directory.CreateDirectory(Path.GetDirectoryName(_saveFilePath));
-        
-        _updateTimer = new System.Timers.Timer(1000);
-        _updateTimer.Elapsed += (s, e) => Update();
-        _updateTimer.AutoReset = true;
-        
+
+        _checkTimer = new System.Timers.Timer(60000); // Проверка каждую минуту
+        _checkTimer.Elapsed += (s, e) => CheckTime();
+        _checkTimer.AutoReset = true;
+
         LoadTime();
-        _updateTimer.Start();
+        _checkTimer.Start();
     }
-    
-    public void Update()
+
+    // Принудительный переход на следующий игровой день без изменения реального времени
+    public void AdvanceToNextDay()
     {
+        _lastGameDayTime = _lastGameDayTime.AddHours(1);
+        OnTick?.Invoke();
+        SaveTime();
+
+        Logger.Log($"Принудительный переход на новый игровой день. Текущее время: {_lastGameDayTime}");
+    }
+
+    private void CheckTime()
+    {
+        if (IsPaused) return;
+
         var now = DateTime.Now;
-        var elapsedRealTime = now - _lastUpdateTime;
-        _lastUpdateTime = now;
-        
-        if (elapsedRealTime.TotalSeconds <= 0)
-            return;
-        
-        // Сохраняем предыдущее состояние
-        var previousGameTime = CurrentGameTimeSeconds;
-        var previousDay = CurrentDay;
-        var previousHour = CurrentHour;
-        
-        // Обновляем игровое время
-        CurrentGameTimeSeconds += elapsedRealTime.TotalSeconds * TimeScale;
-        
-        // Проверяем, сколько полных часов прошло
-        var hoursPassed = (int)(CurrentGameTimeSeconds / SecondsPerGameHour) - (int)(previousGameTime / SecondsPerGameHour);
-        
-        // Если прошли целые часы, вызываем события
-        if (hoursPassed > 0)
+        var lastHour = _lastRealTime.Hour;
+        var currentHour = now.Hour;
+
+        // Если перешли на новый час (новый игровой день)
+        if (currentHour != lastHour)
         {
-            var currentFullHour = (int)(CurrentGameTimeSeconds / SecondsPerGameHour);
-            var firstHourToNotify = (int)(previousGameTime / SecondsPerGameHour) + 1;
-            
-            for (var hour = firstHourToNotify; hour <= currentFullHour; hour++)
+            // Если это непрерывный переход (без пропуска часов)
+            if (currentHour == (lastHour + 1) % 24 || (lastHour == 23 && currentHour == 0))
             {
-                var hourInDay = hour % 24;
-                var day = hour / 24;
-                
-                OnHourPassed?.Invoke(hourInDay);
-                
-                // Если это первый час нового дня
-                if (hourInDay == 0 && hour > 0)
-                {
-                    OnDayPassed?.Invoke(day);
-                }
+                _lastGameDayTime = now;
+                OnTick?.Invoke();
             }
-        }
-        
-        // Сохраняем каждую минуту игрового времени или при смене дня/часа
-        if (hoursPassed > 0 || (int)(CurrentGameTimeSeconds / 60) > (int)(previousGameTime / 60))
-        {
+            else
+            {
+                // Вычисляем сколько дней (часов) пропущено
+                int missedDays;
+                if (currentHour > lastHour)
+                {
+                    missedDays = currentHour - lastHour;
+                }
+                else
+                {
+                    missedDays = (24 - lastHour) + currentHour;
+                }
+
+                _lastGameDayTime = now;
+                OnMissedTicks?.Invoke(missedDays);
+                OnTick?.Invoke();
+            }
+
+            _lastRealTime = now;
             SaveTime();
         }
     }
-    
-    // Переход к следующему игровому дню
-    public void AdvanceToNextDay()
+
+    private void LoadTime()
     {
-        var currentDay = CurrentDay;
-        var secondsToAdd = SecondsUntilNextDay;
-        
-        CurrentGameTimeSeconds += secondsToAdd;
-        _lastUpdateTime = DateTime.Now;
-        
-        // Вызываем события для всех оставшихся часов текущего дня
-        for (var hour = CurrentHour + 1; hour < 24; hour++)
+        if (!File.Exists(_saveFilePath))
         {
-            OnHourPassed?.Invoke(hour);
+            _lastRealTime = DateTime.Now;
+            _lastGameDayTime = DateTime.Now;
+            Logger.Log("Сохранение времени не найдено, начинаем новый отсчет");
+            return;
         }
-        
-        // Вызываем событие нового дня (0 час нового дня)
-        OnHourPassed?.Invoke(0);
-        OnDayPassed?.Invoke(currentDay + 1);
-        
-        SaveTime();
+
+        try
+        {
+            var saveData = JsonSerializer.Deserialize<TimeSaveData>(File.ReadAllText(_saveFilePath));
+            _lastRealTime = saveData.LastRealTime;
+            _lastGameDayTime = saveData.LastGameDayTime;
+
+            var now = DateTime.Now;
+            var timePassed = now - _lastRealTime;
+
+            // Если прошло больше часа
+            if (timePassed.TotalHours >= 1)
+            {
+                int fullHoursPassed = (int)timePassed.TotalHours;
+
+                // Если прошло больше суток, вызываем OnMissedTicks один раз с общим количеством
+                if (fullHoursPassed >= 24)
+                {
+                    int fullDaysPassed = fullHoursPassed / 24;
+                    OnMissedTicks?.Invoke(fullDaysPassed);
+                }
+                else
+                {
+                    // Если пропущено несколько часов (но меньше суток)
+                    OnMissedTicks?.Invoke(fullHoursPassed);
+                }
+            }
+
+            // Вызываем OnTick для текущего часа, если он изменился
+            if (now.Hour != _lastRealTime.Hour)
+            {
+                OnTick?.Invoke();
+            }
+
+            _lastRealTime = now;
+            _lastGameDayTime = now;
+            Logger.Log($"Время загружено. Последний отсчет: {saveData.LastRealTime}, текущий час: {now.Hour}");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError($"Ошибка загрузки времени: {ex.Message}");
+            _lastRealTime = DateTime.Now;
+            _lastGameDayTime = DateTime.Now;
+        }
     }
-    
+
+    private void SaveTime()
+    {
+        try
+        {
+            var saveData = new TimeSaveData
+            {
+                LastRealTime = _lastRealTime,
+                LastGameDayTime = _lastGameDayTime
+            };
+
+            File.WriteAllText(_saveFilePath, JsonSerializer.Serialize(saveData));
+            Logger.Log($"Время сохранено. Реальное: {_lastRealTime}, Игровое: {_lastGameDayTime}");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError($"Ошибка сохранения времени: {ex.Message}");
+        }
+    }
+
     // Очистка сохраненного времени
     public void ClearSavedTime()
     {
@@ -125,106 +171,26 @@ public class TimeController : IDisposable
             {
                 File.Delete(_saveFilePath);
             }
-            CurrentGameTimeSeconds = 0;
-            _lastUpdateTime = DateTime.Now;
+            _lastRealTime = DateTime.Now;
+            _lastGameDayTime = DateTime.Now;
+            Logger.Log("Сохранение времени очищено");
         }
         catch (Exception ex)
         {
             Logger.LogError($"Ошибка при очистке сохранения: {ex.Message}");
         }
     }
-    
-    public void SetGameTime(double gameTimeSeconds)
-    {
-        CurrentGameTimeSeconds = gameTimeSeconds;
-        _lastUpdateTime = DateTime.Now;
-        SaveTime();
-    }
-    
-    public void SetTimeScale(double gameSecondsPerRealSecond)
-    {
-        TimeScale = gameSecondsPerRealSecond;
-        SaveTime();
-    }
-    
-    private void SaveTime()
-    {
-        try
-        {
-            var saveData = new TimeSaveData
-            {
-                GameTimeSeconds = CurrentGameTimeSeconds,
-                TimeScale = TimeScale,
-                LastSaveRealTime = DateTime.Now,
-                NextDayInRealSeconds = SecondsUntilNextDay / TimeScale
-            };
-            
-            File.WriteAllText(_saveFilePath, JsonSerializer.Serialize(saveData));
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError($"Ошибка сохранения времени: {ex.Message}");
-        }
-    }
-    
-    private void LoadTime()
-    {
-        if (!File.Exists(_saveFilePath))
-        {
-            CurrentGameTimeSeconds = 0;
-            _lastUpdateTime = DateTime.Now;
-            return;
-        }
-        
-        try
-        {
-            var saveData = JsonSerializer.Deserialize<TimeSaveData>(File.ReadAllText(_saveFilePath));
-            TimeScale = saveData.TimeScale;
-            
-            var realTimeSinceSave = DateTime.Now - saveData.LastSaveRealTime;
-            
-            // Если с момента сохранения прошло больше времени, чем оставалось до следующего дня
-            if (realTimeSinceSave.TotalSeconds >= saveData.NextDayInRealSeconds)
-            {
-                // Вычисляем сколько полных дней прошло
-                var fullDaysPassed = (int)((realTimeSinceSave.TotalSeconds - saveData.NextDayInRealSeconds) * TimeScale / SecondsPerGameDay) + 1;
-                CurrentGameTimeSeconds = saveData.GameTimeSeconds + (fullDaysPassed * SecondsPerGameDay);
-                
-                // Корректируем с учетом оставшегося времени
-                var remainingRealTime = realTimeSinceSave.TotalSeconds - saveData.NextDayInRealSeconds;
-                remainingRealTime %= (SecondsPerGameDay / TimeScale);
-                CurrentGameTimeSeconds += remainingRealTime * TimeScale;
-            }
-            else
-            {
-                // Просто добавляем прошедшее время
-                CurrentGameTimeSeconds = saveData.GameTimeSeconds + (realTimeSinceSave.TotalSeconds * TimeScale);
-            }
-            
-            _lastUpdateTime = DateTime.Now;
-            
-            Logger.Log($"Время загружено. Текущий день: {CurrentDay}, час: {CurrentHour}, до следующего дня: {SecondsUntilNextDay/3600:F1} часов");
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError($"Ошибка загрузки времени: {ex.Message}");
-            CurrentGameTimeSeconds = 0;
-            _lastUpdateTime = DateTime.Now;
-        }
-    }
-    
+
     public void Dispose()
     {
-        _updateTimer?.Stop();
-        _updateTimer?.Dispose();
+        _checkTimer?.Stop();
+        _checkTimer?.Dispose();
         SaveTime();
     }
-    
+
     private class TimeSaveData
     {
-        public double GameTimeSeconds { get; set; }
-        public double TimeScale { get; set; }
-        public DateTime LastSaveRealTime { get; set; }
-        public double NextDayInRealSeconds { get; set; } // Реальное время до следующего дня
+        public DateTime LastRealTime { get; set; }
+        public DateTime LastGameDayTime { get; set; }
     }
 }

@@ -11,6 +11,7 @@ namespace FantasyKingdom.Bot;
 public class BotController(string token)
 {
     private TimeController _timeController;
+    private NotificationController _notificationController;
     private RegistrationController _registrationController;
     private MenuController _menuController;
     private TavernController _tavernController;
@@ -41,11 +42,12 @@ public class BotController(string token)
         DatabaseService.Run();
 
         _timeController = new TimeController();
+        _notificationController = new NotificationController(bot);
         _registrationController = new RegistrationController(bot);
         _menuController = new MenuController(bot);
         _tavernController = new TavernController(bot);
         
-        _consoleHandler = new ConsoleHandler(_timeController);
+        _consoleHandler = new ConsoleHandler(_timeController, _notificationController);
         _messageHandler = new MessageHandler(bot, _registrationController, _menuController);
         _queryHandler = new QueryHandler(bot, _registrationController, _menuController, _tavernController);
     }
