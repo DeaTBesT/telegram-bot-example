@@ -17,11 +17,4 @@ public class UserModel
     public long Id { get; set; }
     public string UserName { get; set; }
     public UserData Data { get; set; }
-    public RecruitModel[] Recruits { get; set; }
-
-    public class TavernPersonsPanel()
-    {
-        public int PageIndex { get; set; } = 0;
-        //public TavernPersonModel[] AvaiableRecruits { get; set; }
-    }
 }

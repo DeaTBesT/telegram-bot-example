@@ -23,14 +23,14 @@ public static class InlineKeyboards
     public static readonly InlineKeyboardMarkup TavernMenu = new([
         [
             InlineKeyboardButton.WithCallbackData("🧑Персонал", callbackData: "/hiredRecruits"),
-            InlineKeyboardButton.WithCallbackData("👥Рекруты", callbackData: "/showDailyRecruits")
+            InlineKeyboardButton.WithCallbackData("👥Рекруты", callbackData: "/recruitList")
         ],
-        [InlineKeyboardButton.WithCallbackData("🔙Назад", callbackData: "/shelterMenu")]
+        [InlineKeyboardButton.WithCallbackData("🔙Назад", callbackData: "/menu")]
     ]);
 
-    public static readonly InlineKeyboardMarkup HeroMenu = new([
-        [InlineKeyboardButton.WithCallbackData("❌Уволить", callbackData: "/kickRecruit")],
-        [InlineKeyboardButton.WithCallbackData("🔙Назад", callbackData: "/hiredRecruits")]
+    public static readonly InlineKeyboardMarkup RecruitMenu = new([
+        [InlineKeyboardButton.WithCallbackData("\u2714\ufe0fНанять", callbackData: "/hireRecruits")],
+        [InlineKeyboardButton.WithCallbackData("🔙Назад", callbackData: "/recruitList")]
     ]);
 
     public static readonly InlineKeyboardMarkup KickHero = new([

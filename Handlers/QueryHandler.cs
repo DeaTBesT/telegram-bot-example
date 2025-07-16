@@ -28,7 +28,8 @@ public class QueryHandler(
 
         if (Utils.TryNormalizeCommand(CommandsPrefix, query.Data, out var cmdStr))
         {
-            var command = Utils.ParseQueryCommand(cmdStr);
+            var parameters = cmdStr.Split("_");
+            var command = Utils.ParseQueryCommand(parameters[0]);
 
             switch (command)
             {
@@ -38,9 +39,29 @@ public class QueryHandler(
                     await menuController.IndexEdit(query, user);
                 }
                     break;
+                case QueryCommand.menu:
+                {
+                    await menuController.IndexEdit(query, user);
+                }
+                    break;
                 case QueryCommand.tavern:
                 {
                     await tavernController.IndexEdit(query, user);
+                }
+                    break;
+                case QueryCommand.recruitList:
+                {
+                    await tavernController.SetRecruitsPage(query, "0", user);
+                }
+                    break;
+                case QueryCommand.recruitsPage:
+                {
+                    await tavernController.SetRecruitsPage(query, parameters[1], user);
+                }
+                    break;
+                case QueryCommand.recruitInfo:
+                {
+                    await tavernController.ShowRecruitInfo(query, parameters[1], user);
                 }
                     break;
                 default:

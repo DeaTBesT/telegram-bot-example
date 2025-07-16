@@ -1,12 +1,12 @@
-﻿using System;
-using System.IO;
-using System.Text.Json;
+﻿using System.Text.Json;
 using FantasyKingdom.Services;
 
 namespace FantasyKingdom.Controllers;
 
 public class TimeController : IDisposable
 {
+    private const string TimeFilePath = @"FantasyKingdom\game_time.json";
+    
     // События
     public static Action OnTick { get; set; } // Вызывается при наступлении нового игрового дня (текущий час)
     public static Action<int> OnMissedTicks { get; set; } // Вызывается при запуске, если пропущены дни (количество пропущенных дней)
@@ -23,8 +23,7 @@ public class TimeController : IDisposable
     {
         _saveFilePath = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            "FantasyKingdom",
-            "real_time_tracker.json");
+            TimeFilePath);
 
         Logger.Log($"Сохранения времени по пути: {_saveFilePath}");
 
@@ -110,12 +109,12 @@ public class TimeController : IDisposable
             // Если прошло больше часа
             if (timePassed.TotalHours >= 1)
             {
-                int fullHoursPassed = (int)timePassed.TotalHours;
+                var fullHoursPassed = (int)timePassed.TotalHours;
 
                 // Если прошло больше суток, вызываем OnMissedTicks один раз с общим количеством
                 if (fullHoursPassed >= 24)
                 {
-                    int fullDaysPassed = fullHoursPassed / 24;
+                    var fullDaysPassed = fullHoursPassed / 24;
                     OnMissedTicks?.Invoke(fullDaysPassed);
                 }
                 else

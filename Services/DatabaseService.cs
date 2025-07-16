@@ -86,7 +86,7 @@ public static class DatabaseService
         {
             return false;
         }
-
+        
         var data = JsonConvert.SerializeObject(user.Data);
 
         _connection.Execute(
@@ -113,7 +113,8 @@ public static class DatabaseService
 
         var userData = new UserData
         {
-            UserState = UserAction.registration
+            UserState = UserAction.registration,
+            TavernInfo = new UserData.TavernPanel()
         };
 
         var user = new UserModel(id, id.ToString(), userData);

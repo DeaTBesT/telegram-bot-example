@@ -4,5 +4,9 @@ public enum QueryCommand
 {
     undefined,
     acceptUsername,
-    tavern
+    menu,
+    tavern,
+    recruitList,
+    recruitsPage,
+    recruitInfo
 }

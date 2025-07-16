@@ -41,8 +41,8 @@ public class BotController(string token)
     {
         DatabaseService.Run();
 
-        _timeController = new TimeController();
         _notificationController = new NotificationController(bot);
+        _timeController = new TimeController();
         _registrationController = new RegistrationController(bot);
         _menuController = new MenuController(bot);
         _tavernController = new TavernController(bot);

@@ -33,7 +33,9 @@ public static class PaginationKeyboardBuilder
         int itemsPerPage,
         Func<T, (string text, string callbackData)> itemButtonGenerator,
         string pageNavigationPrefix = "page_",
-        string itemSelectionPrefix = "item_")
+        string itemSelectionPrefix = "item_",
+        string exitButtonText = "Выход",
+        string exitButtonCallback = "exit")
     {
         var totalPages = (int)Math.Ceiling((double)items.Count / itemsPerPage);
         currentPage = Math.Clamp(currentPage, 0, totalPages - 1);
@@ -45,8 +47,8 @@ public static class PaginationKeyboardBuilder
 
         var keyboard = new List<List<InlineKeyboardButton>>();
 
-        // Добавляем кнопки элементов
-        foreach (var item in pageItems)
+        // Добавляем кнопки элементов (максимум 8)
+        foreach (var item in pageItems.Take(8))
         {
             var (text, callbackData) = itemButtonGenerator(item);
             keyboard.Add(new List<InlineKeyboardButton>
@@ -60,18 +62,21 @@ public static class PaginationKeyboardBuilder
 
         if (currentPage > 0)
         {
-            navigationRow.Add(InlineKeyboardButton.WithCallbackData("⬅ Назад", $"{pageNavigationPrefix}prev_{currentPage - 1}"));
+            navigationRow.Add(InlineKeyboardButton.WithCallbackData("⬅ Назад", $"{pageNavigationPrefix}{currentPage - 1}"));
         }
 
         if (currentPage < totalPages - 1)
         {
-            navigationRow.Add(InlineKeyboardButton.WithCallbackData("Вперед ➡", $"{pageNavigationPrefix}next_{currentPage + 1}"));
+            navigationRow.Add(InlineKeyboardButton.WithCallbackData("Вперед ➡", $"{pageNavigationPrefix}{currentPage + 1}"));
         }
 
         if (navigationRow.Count > 0)
         {
             keyboard.Add(navigationRow);
         }
+
+        // Добавляем кнопку "Выход"
+        keyboard.Add([InlineKeyboardButton.WithCallbackData(exitButtonText, exitButtonCallback)]);
 
         return new InlineKeyboardMarkup(keyboard);
     }
