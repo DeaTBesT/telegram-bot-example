@@ -41,7 +41,10 @@ public class ConsoleHandler : IHandler
             Console.Write("> ");
             var input = Console.ReadLine()?.Trim();
 
-            if (string.IsNullOrEmpty(input)) continue;
+            if (string.IsNullOrEmpty(input)) 
+            {
+                continue; 
+            }
 
             var parts = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
             var cmd = parts[0].ToLower();

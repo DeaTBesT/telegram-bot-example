@@ -80,16 +80,4 @@ public static class PaginationKeyboardBuilder
 
         return new InlineKeyboardMarkup(keyboard);
     }
-
-    // Метод для разбора callback данных пагинации
-    public static (string action, int newPage) ParsePageCallback(string callbackData)
-    {
-        var parts = callbackData.Split('_');
-        if (parts.Length < 3) return ("", 0);
-
-        var action = parts[1]; // "prev" или "next"
-        var page = int.Parse(parts[2]);
-
-        return (action, page);
-    }
 }

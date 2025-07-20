@@ -48,9 +48,7 @@ public class NotificationController
 
     public async void NotificateUser(long id, string message)
     {
-        var user = DatabaseService.GetUserById(id);
-
-        await _bot.SendMessage(user.Id,
+        await _bot.SendMessage(id,
             $"{message}");
 
         Logger.Log($"Сообщение отправленно человеку с Id: {id}. Текст сообщения\n: {message}");

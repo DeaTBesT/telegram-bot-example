@@ -11,7 +11,8 @@ namespace FantasyKingdom.Handlers;
 public class MessageHandler(
     ITelegramBotClient bot,
     RegistrationController registrationController,
-    MenuController menuController) : IHandler
+    MenuController menuController,
+    NotificationController notificationController) : IHandler
 {
     private const string CommandsPrefix = "/";
 
@@ -51,6 +52,13 @@ public class MessageHandler(
         }
         else
         {
+            if (user == null)
+            {
+                Logger.LogWarning($"User is null: {cmdStr}");
+                notificationController.NotificateUser(msg.From.Id, $"Сначала зарегестрируйтесь (/start)");
+                return;
+            }
+
             if (string.IsNullOrEmpty(user.UserName))
             {
                 Logger.LogWarning($"Unknown command: {cmdStr}");

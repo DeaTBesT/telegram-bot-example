@@ -11,7 +11,7 @@ public static class InlineKeyboards
     public static readonly InlineKeyboardMarkup MenuKeyboard = new([
         [
             InlineKeyboardButton.WithCallbackData("\ud83c\udf7aТаверна", callbackData: "/tavern"),
-            InlineKeyboardButton.WithCallbackData("\ud83d\udc64Герои", callbackData: "/hero")
+            InlineKeyboardButton.WithCallbackData("\ud83d\udc64Герои", callbackData: "/heroList")
         ],
         [
             InlineKeyboardButton.WithCallbackData("\ud83c\udff0Замок", callbackData: "/kingdom"),
@@ -37,6 +37,10 @@ public static class InlineKeyboards
         [InlineKeyboardButton.WithCallbackData("🔴Да", callbackData: "/acceptKickRecruit")],
         [InlineKeyboardButton.WithCallbackData("🔙Назад", callbackData: "/hiredRecruits")]
     ]);
+
+    public static readonly InlineKeyboardMarkup SimpleExit = new([
+      [InlineKeyboardButton.WithCallbackData("Выход", callbackData: "/menu")],
+  ]);
 
     // public static readonly InlineKeyboardMarkup GetHireRecruitMarkup(bool isHired)
     // {

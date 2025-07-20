@@ -8,5 +8,10 @@ public enum QueryCommand
     tavern,
     recruitList,
     recruitsPage,
-    recruitInfo
+    recruitInfo,
+    hireRecruit,
+    heroList,
+    heroPage,
+    heroInfo,
+    kickHero
 }

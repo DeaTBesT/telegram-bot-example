@@ -11,7 +11,8 @@ public class QueryHandler(
     ITelegramBotClient bot,
     RegistrationController registrationController,
     MenuController menuController,
-    TavernController tavernController) : IHandler
+    TavernController tavernController,
+    HeroController heroController) : IHandler
 {
     private const string CommandsPrefix = "/";
 
@@ -62,6 +63,31 @@ public class QueryHandler(
                 case QueryCommand.recruitInfo:
                 {
                     await tavernController.ShowRecruitInfo(query, parameters[1], user);
+                }
+                    break;
+                case QueryCommand.hireRecruit:
+                {
+                    await tavernController.HireRecruit(query, parameters[1], user);
+                }
+                    break;
+                case QueryCommand.heroList:
+                {
+                    heroController.IndexEdit(query, user);
+                }
+                    break;
+                case QueryCommand.heroPage:
+                {
+                    heroController.SetHeroPage(query, parameters[1], user);
+                }
+                    break;
+                case QueryCommand.heroInfo:
+                {
+                    heroController.ShowHeroInfo(query, parameters[1], user);
+                }
+                    break;
+                case QueryCommand.kickHero:
+                {
+                    heroController.KickHero(query, parameters[1], user);
                 }
                     break;
                 default:
