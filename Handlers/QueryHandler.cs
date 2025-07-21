@@ -12,7 +12,8 @@ public class QueryHandler(
     RegistrationController registrationController,
     MenuController menuController,
     TavernController tavernController,
-    HeroController heroController) : IHandler
+    HeroController heroController,
+    MissionsController missionsController) : IHandler
 {
     private const string CommandsPrefix = "/";
 
@@ -72,22 +73,27 @@ public class QueryHandler(
                     break;
                 case QueryCommand.heroList:
                 {
-                    heroController.IndexEdit(query, user);
+                    await heroController.IndexEdit(query, user);
                 }
                     break;
                 case QueryCommand.heroPage:
                 {
-                    heroController.SetHeroPage(query, parameters[1], user);
+                    await heroController.SetHeroPage(query, parameters[1], user);
                 }
                     break;
                 case QueryCommand.heroInfo:
                 {
-                    heroController.ShowHeroInfo(query, parameters[1], user);
+                    await heroController.ShowHeroInfo(query, parameters[1], user);
                 }
                     break;
                 case QueryCommand.kickHero:
                 {
-                    heroController.KickHero(query, parameters[1], user);
+                    await heroController.KickHero(query, parameters[1], user);
+                }
+                    break;
+                case QueryCommand.missionsMenu:
+                {
+                    await missionsController.IndexEdit(query, user);
                 }
                     break;
                 default:

@@ -140,6 +140,8 @@ public class TimeController : IDisposable
             _lastRealTime = DateTime.Now;
             _lastGameDayTime = DateTime.Now;
         }
+
+        SaveTime();
     }
 
     private void SaveTime()

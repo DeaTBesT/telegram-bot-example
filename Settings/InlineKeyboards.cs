@@ -15,7 +15,7 @@ public static class InlineKeyboards
         ],
         [
             InlineKeyboardButton.WithCallbackData("\ud83c\udff0Замок", callbackData: "/kingdom"),
-            InlineKeyboardButton.WithCallbackData("🌎Война за территорию", callbackData: "/online")
+            InlineKeyboardButton.WithCallbackData("🌎Война за территорию", callbackData: "/missionsMenu")
         ],
         [InlineKeyboardButton.WithCallbackData("💎Магазин", callbackData: "/shop")],
     ]);
@@ -38,9 +38,17 @@ public static class InlineKeyboards
         [InlineKeyboardButton.WithCallbackData("🔙Назад", callbackData: "/hiredRecruits")]
     ]);
 
+    public static readonly InlineKeyboardMarkup MissionsMenu = new([
+        [
+            InlineKeyboardButton.WithCallbackData("Зоны", callbackData: "/zones"),
+            InlineKeyboardButton.WithCallbackData("Миссии", callbackData: "/missions")
+        ],
+        [InlineKeyboardButton.WithCallbackData("🔙Назад", callbackData: "/menu")],
+    ]);
+
     public static readonly InlineKeyboardMarkup SimpleExit = new([
-      [InlineKeyboardButton.WithCallbackData("Выход", callbackData: "/menu")],
-  ]);
+        [InlineKeyboardButton.WithCallbackData("Выход", callbackData: "/menu")],
+    ]);
 
     // public static readonly InlineKeyboardMarkup GetHireRecruitMarkup(bool isHired)
     // {
