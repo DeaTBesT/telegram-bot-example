@@ -14,5 +14,7 @@ public enum QueryCommand
     heroPage,
     heroInfo,
     kickHero,
-    missionsMenu
+    missionsMenu,
+    missionsList,
+    missionsPage
 }

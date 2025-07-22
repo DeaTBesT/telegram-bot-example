@@ -41,13 +41,13 @@ public class TavernController
     {
         try
         {
-            var tavernInfo = user.Data.TavernInfo;
-
-            if (tavernInfo == null)
+            if (user.Data.TavernInfo == null)
             {
-                tavernInfo = new UserData.TavernPanel();
+                user.Data.TavernInfo = new UserData.TavernPanel();
                 DatabaseService.TrySaveUser(user);
             }
+
+            var tavernInfo = user.Data.TavernInfo;
 
             // Инициализация списка рекрутов, если он null
             if (tavernInfo.AvaiableRecruits == null)
@@ -116,7 +116,21 @@ public class TavernController
 
         try
         {
-            user.Data.TavernInfo.PageIndex = pageIndex;
+            if (user.Data.TavernInfo == null)
+            {
+                user.Data.TavernInfo = new UserData.TavernPanel();
+                DatabaseService.TrySaveUser(user);
+            }
+
+            var info = user.Data.TavernInfo;
+
+            if (info.AvaiableRecruits == null)
+            {
+                info.AvaiableRecruits = new List<HeroModel>();
+                DatabaseService.TrySaveUser(user);
+            }
+
+            info.PageIndex = pageIndex;
             DatabaseService.TrySaveUser(user);
             await GetRecruitsList(query, user);
         }

@@ -20,15 +20,14 @@ public class HeroController
     {
         try
         {
-            var inventoryInfo = user.Data.InventoryInfo;
-
-            if (inventoryInfo == null)
+            if (user.Data.InventoryInfo == null)
             {
-                inventoryInfo = new UserData.UserInventory();
+                user.Data.InventoryInfo = new UserData.UserInventory();
                 DatabaseService.TrySaveUser(user);
             }
 
-            // Инициализация списка рекрутов, если он null
+            var inventoryInfo = user.Data.InventoryInfo;
+
             if (inventoryInfo.HiredHeroes == null)
             {
                 inventoryInfo.HiredHeroes = new List<HeroModel>();
@@ -85,7 +84,21 @@ public class HeroController
 
         try
         {
-            user.Data.InventoryInfo.PageIndex = pageIndex;
+            if (user.Data.InventoryInfo == null)
+            {
+                user.Data.InventoryInfo = new UserData.UserInventory();
+                DatabaseService.TrySaveUser(user);
+            }
+
+            var info = user.Data.InventoryInfo;
+
+            if (info.HiredHeroes == null)
+            {
+                info.HiredHeroes = new List<HeroModel>();
+                DatabaseService.TrySaveUser(user);
+            }
+
+            info.PageIndex = pageIndex;
             DatabaseService.TrySaveUser(user);
             await GetHeroList(query, user);
         }

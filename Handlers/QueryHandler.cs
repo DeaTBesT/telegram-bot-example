@@ -96,6 +96,16 @@ public class QueryHandler(
                     await missionsController.IndexEdit(query, user);
                 }
                     break;
+                case QueryCommand.missionsList:
+                {
+                    await missionsController.SetMissionsPage(query, "0", user);
+                }
+                    break;
+                case QueryCommand.missionsPage:
+                {
+                    await missionsController.SetMissionsPage(query, parameters[1], user);
+                }
+                    break;
                 default:
                 {
                     Logger.LogWarning($"Unknown command: {cmdStr}");

@@ -113,9 +113,7 @@ public static class DatabaseService
 
         var userData = new UserData
         {
-            UserState = UserAction.registration,
-            TavernInfo = new UserData.TavernPanel(),
-            //InventoryInfo = new UserData.UserInventory()
+            UserState = UserAction.registration
         };
 
         var user = new UserModel(id, id.ToString(), userData);
