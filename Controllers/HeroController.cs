@@ -1,7 +1,6 @@
 ﻿using FantasyKingdom.Models;
 using FantasyKingdom.Services;
 using FantasyKingdom.Settings;
-using System.Reflection.Emit;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;

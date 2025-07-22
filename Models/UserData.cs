@@ -8,6 +8,7 @@ public class UserData
     public int Coins { get; set; }
     public TavernPanel TavernInfo { get; set; }
     public UserInventory InventoryInfo { get; set; }
+    public Missions MissionInfo { get; set; }
 
     public class TavernPanel
     {
@@ -64,5 +65,12 @@ public class UserData
             HiredHeroes.Remove(recruit);
             return true;
         }
+    }
+
+    public class Missions
+    {
+        public bool IsUpdate { get; set; }
+        public int PageIndex { get; set; } = 0;
+        public List<MissionModel> AvaiableMissions { get; set; }
     }
 }
